@@ -1,6 +1,6 @@
 package edge_decimation;
 
-public class Pair {
+public class Pair implements Comparable {
 
     Vector3 a;
     Vector3 b;
@@ -73,5 +73,16 @@ public class Pair {
     @Override
     public int hashCode() {
         return this.a.hashCode() ^ this.b.hashCode();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (!(o instanceof Pair)) {
+            throw new UnsupportedOperationException("!(o instanceof Pair)");
+        }
+
+        Pair other = (Pair)o;
+        return (this.cachedError > other.cachedError) ? 1 : -1;
+        
     }
 }

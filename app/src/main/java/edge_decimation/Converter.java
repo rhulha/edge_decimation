@@ -1,16 +1,10 @@
 package edge_decimation;
 
-
-import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.stream.Collectors;
-
 
 public class Converter {
 
@@ -20,9 +14,9 @@ public class Converter {
         HashMap<Vector3, List<Triangle>> vertexFaces = new HashMap<Vector3, List<Triangle>>();
 
         for (Triangle t : tris) {
-            vectorAndQuadric.putIfAbsent(t.p1, new Vector3(t.p1));
-            vectorAndQuadric.putIfAbsent(t.p2, new Vector3(t.p2));
-            vectorAndQuadric.putIfAbsent(t.p2, new Vector3(t.p2));
+            vectorAndQuadric.putIfAbsent(t.p1, new Vector3(t.p1, new Matrix4()));
+            vectorAndQuadric.putIfAbsent(t.p2, new Vector3(t.p2, new Matrix4()));
+            vectorAndQuadric.putIfAbsent(t.p3, new Vector3(t.p3, new Matrix4()));
             Matrix4 q = t.quadric();
             Vector3 v1 = vectorAndQuadric.get(t.p1);
             Vector3 v2 = vectorAndQuadric.get(t.p2);

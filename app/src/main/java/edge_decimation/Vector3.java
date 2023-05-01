@@ -28,6 +28,13 @@ public class Vector3 {
 		this.z = o.z;
     }
 
+    public Vector3(Vector3 o, Matrix4 q) {
+		this.x = o.x;
+		this.y = o.y;
+		this.z = o.z;
+        this.q = q;
+    }
+
     // supports arrays with only 2 elements
 	public Vector3( float[] f) {
 		this( f[0], f[1], f.length == 3 ? f[2] : 0);
