@@ -2,13 +2,14 @@ package edge_decimation;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReadSTL {
+public class STLFile {
 
     public static List<Triangle> read(String filename) throws IOException {
         
@@ -55,5 +56,48 @@ public class ReadSTL {
             );
         }
         return triangles;
+    }
+
+    public static void write(String filename, List<Triangle> tris) throws IOException {
+        FileOutputStream fos = new FileOutputStream(filename);
+
+        String header = "Binary STL file";
+        byte[] headerBytes = new byte[80];
+        byte[] headerStringBytes = header.getBytes();
+        System.arraycopy(headerStringBytes, 0, headerBytes, 0, Math.min(headerStringBytes.length, headerBytes.length));
+        fos.write(headerBytes);
+
+        int numTriangles = tris.size();
+        byte[] numTrianglesBytes = new byte[4];
+        numTrianglesBytes[0] = (byte) (numTriangles & 0xFF);
+        numTrianglesBytes[1] = (byte) ((numTriangles >> 8) & 0xFF);
+        numTrianglesBytes[2] = (byte) ((numTriangles >> 16) & 0xFF);
+        numTrianglesBytes[3] = (byte) ((numTriangles >> 24) & 0xFF);
+        fos.write(numTrianglesBytes);
+
+        for (Triangle triangle : tris) {
+
+            ByteBuffer buffer = ByteBuffer.allocate(48);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            buffer.putFloat((float) triangle.normal.x);
+            buffer.putFloat((float) triangle.normal.y);
+            buffer.putFloat((float) triangle.normal.z);
+            buffer.putFloat((float) triangle.p1.x);
+            buffer.putFloat((float) triangle.p1.y);
+            buffer.putFloat((float) triangle.p1.z);
+            buffer.putFloat((float) triangle.p2.x);
+            buffer.putFloat((float) triangle.p2.y);
+            buffer.putFloat((float) triangle.p2.z);
+            buffer.putFloat((float) triangle.p3.x);
+            buffer.putFloat((float) triangle.p3.y);
+            buffer.putFloat((float) triangle.p3.z);
+            fos.write(buffer.array());
+
+            // Write a 2-byte attribute count (usually 0)
+            fos.write(new byte[] { 0, 0 });
+        }
+
+        fos.close();
+
     }
 }

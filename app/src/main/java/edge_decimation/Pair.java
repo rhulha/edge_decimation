@@ -1,5 +1,7 @@
 package edge_decimation;
 
+import java.text.DecimalFormat;
+
 public class Pair implements Comparable {
 
     Vector3 a;
@@ -49,7 +51,7 @@ public class Pair implements Comparable {
 
     public double error() {
         if (cachedError < 0) {
-            cachedError = quadric().quadricError(new Vector3());
+            cachedError = quadric().quadricError(getVector3());
         }
         return cachedError;
     }
@@ -73,6 +75,12 @@ public class Pair implements Comparable {
     @Override
     public int hashCode() {
         return this.a.hashCode() ^ this.b.hashCode();
+    }
+
+    static DecimalFormat df = new DecimalFormat("0.00");
+    @Override
+    public String toString() {
+        return a+","+df.format(a.q.determinant())+" <--> "+b+","+df.format(b.q.determinant()) + " <--> " + cachedError;
     }
 
     @Override

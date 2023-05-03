@@ -1,8 +1,10 @@
 package edge_decimation;
 
+import java.text.DecimalFormat;
+
 public class Vector3 {
 
-    public static double eps = 0.01;
+    public static double eps = 0.000001;
 
 	public double x;
 	public double y;
@@ -146,9 +148,10 @@ public class Vector3 {
         return result;
     }
 
+	static DecimalFormat df = new DecimalFormat("0.00");
 	@Override
 	public String toString() {
-		return "( " + x + " " + y + " " + z +" )";
+		return "( " + df.format(x) + " " + df.format(y) + " " + df.format(z) +" )";
 	}
 
 }

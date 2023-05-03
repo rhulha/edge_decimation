@@ -1,5 +1,8 @@
 package edge_decimation;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +36,26 @@ public class Converter {
             vertexFaces.computeIfAbsent(v3, k -> new ArrayList<>()).add(face);
         }
 
+        System.out.println("vertexFaces.size(): " + vertexFaces.size());
+
+        DecimalFormat df = new DecimalFormat("0.00");
+        try (PrintWriter writer = new PrintWriter("stats.txt")) {
+            for (Triangle t : tris) {
+                Vector3 v1 = vectorAndQuadric.get(t.p1);
+                Vector3 v2 = vectorAndQuadric.get(t.p2);
+                Vector3 v3 = vectorAndQuadric.get(t.p3);
+                writer.println(df.format(v1.q.x00));
+                writer.println(df.format(v1.q.determinant()));
+                writer.println(df.format(v2.q.x00));
+                writer.println(df.format(v2.q.determinant()));
+                writer.println(df.format(v3.q.x00));
+                writer.println(df.format(v3.q.determinant()));
+                writer.println("---");
+            }
+        } catch (IOException ex) {
+            // Handle the exception as appropriate
+        }
+        
         HashSet<Pair> pairs = new HashSet<Pair>();
         
         for (Triangle t : tris) 
@@ -47,12 +70,16 @@ public class Converter {
 
         }
 
+        System.out.println("pairs.size(): " + pairs.size());
+
         HashMap<Vector3, List<Pair>> vertexPairs = new HashMap<Vector3, List<Pair>>();
         for (Pair p : pairs)
         {
             vertexPairs.computeIfAbsent(p.a, k -> new ArrayList<>()).add(p);
             vertexPairs.computeIfAbsent(p.b, k -> new ArrayList<>()).add(p);
         }
+
+        System.out.println("vertexPairs.size(): " + vertexPairs.size());
 
         var priorityQueue = new PriorityQueue<Pair>();
         for (Pair p : pairs)
@@ -61,9 +88,12 @@ public class Converter {
             priorityQueue.add(p); // compare by cachedError
         }
 
-        int currentFaceCount = tris.size();
+        System.out.println("priorityQueue.peek(): " + priorityQueue.peek());
 
-        for (int i = 0; i < 100; i++) {
+        int currentFaceCount = tris.size();
+        int targetFaceCount = (int)currentFaceCount / 2;
+        int i=0;
+        while(currentFaceCount > targetFaceCount && priorityQueue.size() > 0) {
             Pair p = priorityQueue.remove();
 
             if (p.removed)
@@ -91,13 +121,13 @@ public class Converter {
             }
 
             //get related pairs
-            var distintPairs = new HashSet<Pair>();
+            var distinctPairs = new HashSet<Pair>();
             if (vertexPairs.containsKey(p.a)) {
                 for (var pair : vertexPairs.get(p.a))
                 {
                     if (!pair.removed)
                     {
-                        distintPairs.add(pair);
+                        distinctPairs.add(pair);
                     }
                 }
             }
@@ -106,9 +136,14 @@ public class Converter {
                 {
                     if (!pair.removed)
                     {
-                        distintPairs.add(pair);
+                        distinctPairs.add(pair);
                     }
                 }
+            }
+
+            if( i++==0) {
+                System.out.println("distinctFaces.size(): " + distinctFaces.size());
+                System.out.println("distinctPairs.size(): " + distinctPairs.size());
             }
 
             //create new vertex
@@ -125,19 +160,22 @@ public class Converter {
                 var v2 = face_loop.p2;
                 var v3 = face_loop.p3;
 
-                if (v1 == p.a || v1 == p.b)
+                if (v1.equals(p.a) || v1.equals(p.b))
                     v1 = vaq;
 
-                if (v2 == p.a || v2 == p.b)
+                if (v2.equals(p.a) || v2.equals(p.b))
                     v2 = vaq;
 
-                if (v3 == p.a || v3 == p.b)
+                if (v3.equals(p.a) || v3.equals(p.b))
                     v3 = vaq;
 
                 var face_new = new Triangle(v1, v2, v3);
 
                 if (face_new.isDegenerate())
+                {
+                    //System.out.println("face_new.isDegenerate()");
                     continue;
+                }
 
                 if (face_new.normal().dot(face_loop.normal()) < 1e-3)
                 {
@@ -180,7 +218,7 @@ public class Converter {
 
             var seen = new HashMap<Vector3, Boolean>();
 
-            for (var q : distintPairs)
+            for (var q : distinctPairs)
             {
                 q.removed = true;
                 priorityQueue.remove(q);
