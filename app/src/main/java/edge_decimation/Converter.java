@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.PriorityQueue;
 
 public class Converter {
 
-    public static List<Triangle> simplify(List<Triangle> tris) {
+    public static List<Triangle> simplify(List<Triangle> tris, float factor) {
         HashMap<Vector3, Vector3> vectorAndQuadric = new HashMap<Vector3, Vector3>();
         HashMap<Vector3, List<Triangle>> vertexFaces = new HashMap<Vector3, List<Triangle>>();
         HashSet<Pair> pairs = new HashSet<Pair>();
@@ -38,8 +37,6 @@ public class Converter {
             pairs.add(new Pair(v1,v3));
         }
 
-        System.out.println("vertexFaces.size(): " + vertexFaces.size());
-        System.out.println("pairs.size(): " + pairs.size());
 
         for (Pair p : pairs)
         {
@@ -47,20 +44,19 @@ public class Converter {
             vertexPairs.computeIfAbsent(p.b, k -> new ArrayList<>()).add(p);
         }
 
+        System.out.println("vertexFaces.size(): " + vertexFaces.size());
+        System.out.println("pairs.size(): " + pairs.size());
         System.out.println("vertexPairs.size(): " + vertexPairs.size());
 
         var priorityQueue = new MyPriorityQueue<Pair>(); 
-        //var priorityQueue = new PriorityQueue<Pair>(); // remove(obj) is super slow with this.
         for (Pair p : pairs)
         {
             p.error();
             priorityQueue.add(p); // compare by cachedError
         }
 
-        //System.out.println("priorityQueue.peek(): " + priorityQueue.peek());
-
         int currentFaceCount = tris.size();
-        int targetFaceCount = (int)currentFaceCount / 2;
+        int targetFaceCount = (int)(currentFaceCount * factor);
         int i=0;
         while(currentFaceCount > targetFaceCount && priorityQueue.size() > 0) {
             Pair p = priorityQueue.remove();
@@ -76,7 +72,7 @@ public class Converter {
             //get related pairs
             var distinctPairs = getDistinctPairs(vertexPairs, p);
 
-            if( i++==0) {
+            if( i++<0 ) {
                 System.out.println("distinctFaces.size(): " + distinctFaces.size());
                 System.out.println("distinctPairs.size(): " + distinctPairs.size());
             }
@@ -144,7 +140,7 @@ public class Converter {
             vertexPairs.remove(p.a);
             vertexPairs.remove(p.b);
 
-            var seen = new HashMap<Vector3, Boolean>();
+            var seen = new HashSet<Vector3>();
 
             for (var dp : distinctPairs)
             {
@@ -167,19 +163,15 @@ public class Converter {
                     a = b;
                     b = temp;
                 }
-                if (seen.containsKey(b) && seen.get(b))
+                if (seen.contains(b))
                 {
-                    //ignore duplicates
-                    continue;
+                    continue; //ignore duplicates
                 }
-                if (!seen.containsKey(b))
-                    seen.put(b, true);
-                else
-                    seen.put(b, true);
+                seen.add(b);
 
                 var np = new Pair(a, b);
                 np.error();
-                priorityQueue.add(np); // , np.cachedError
+                priorityQueue.add(np);
 
                 vertexPairs.computeIfAbsent(a, k -> new ArrayList<>()).add(np);
                 vertexPairs.computeIfAbsent(b, k -> new ArrayList<>()).add(np);

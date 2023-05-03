@@ -43,7 +43,7 @@ public class MyPriorityQueue<T extends Comparable<T>> {
 
         if(idx>=0) {
             int i=0;
-            // search down and up for an exact match, compare to can be anywhere inbetween...
+            // search down and up for an exact match, compareTo can be anywhere inbetween...
             T t = ll.get(idx+i);
             while( t.compareTo(p) == 0) {
                 if( t == p )
@@ -65,7 +65,7 @@ public class MyPriorityQueue<T extends Comparable<T>> {
             
         }
 
-        throw new RuntimeException("sdasd");
+        throw new RuntimeException("Object not found");
 
    }
 
@@ -99,6 +99,31 @@ public class MyPriorityQueue<T extends Comparable<T>> {
     @Override
     public String toString() {
         return ll.toString();
+    }
+
+
+    public static void main(String[] args) {
+        MyPriorityQueue<Integer> mpq = new MyPriorityQueue<Integer>();
+
+        mpq.add(8);
+        mpq.add(1);
+        mpq.add(9);
+        mpq.add(2);
+        mpq.add(7);
+        mpq.add(4);
+        mpq.add(5);
+        mpq.add(6);
+        mpq.add(1);
+        mpq.add(3);
+
+        System.out.println(mpq);
+
+        mpq.remove(4);
+
+        while(mpq.size()>0) {
+            System.out.println(mpq.remove());
+        }
+
     }
 
 }
