@@ -14,7 +14,7 @@ public class App {
         System.out.println("Absolute path is: " + absolutePathString);
 
         List<Triangle> tris = STLFile.read("../../bunny.stl");
-        List<Triangle> tris_decimated = Converter.simplify(tris, 0.1f);
+        List<Triangle> tris_decimated = Decimator.simplify(tris, 0.1f);
         STLFile.write("../../bunny_java.stl", tris_decimated);
     }
 }

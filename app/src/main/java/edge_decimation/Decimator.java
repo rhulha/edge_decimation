@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-public class Converter {
+public class Decimator {
 
     public static List<Triangle> simplify(List<Triangle> tris, float factor) {
         HashMap<Vector3, Vector3> vectorAndQuadric = new HashMap<Vector3, Vector3>();
