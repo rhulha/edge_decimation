@@ -52,7 +52,7 @@ public class Converter {
         for (Pair p : pairs)
         {
             p.error();
-            priorityQueue.add(p); // compare by cachedError
+            priorityQueue.add(p); // Sort by cachedError: Smallest error first,  highest error last.
         }
 
         int currentFaceCount = tris.size();
