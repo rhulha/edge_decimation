@@ -2,7 +2,7 @@ package edge_decimation;
 
 import java.text.DecimalFormat;
 
-public class Pair implements Comparable {
+public class Pair implements Comparable<Pair> {
 
     Vector3 a;
     Vector3 b;
@@ -18,6 +18,7 @@ public class Pair implements Comparable {
             this.a = a;
             this.b = b;
         }
+        //error();
     }
 
     public Vector3 getVector3() {
@@ -74,7 +75,20 @@ public class Pair implements Comparable {
 
     @Override
     public int hashCode() {
-        return this.a.hashCode() ^ this.b.hashCode();
+        int result = 17;
+        long longBits = Double.doubleToLongBits(this.a.x);
+        result = 31 * result + (int) (longBits ^ (longBits >>> 32));
+        longBits = Double.doubleToLongBits(this.a.y);
+        result = 31 * result + (int) (longBits ^ (longBits >>> 32));
+        longBits = Double.doubleToLongBits(this.a.z);
+        result = 31 * result + (int) (longBits ^ (longBits >>> 32));
+        longBits = Double.doubleToLongBits(this.b.x);
+        result = 31 * result + (int) (longBits ^ (longBits >>> 32));
+        longBits = Double.doubleToLongBits(this.b.y);
+        result = 31 * result + (int) (longBits ^ (longBits >>> 32));
+        longBits = Double.doubleToLongBits(this.b.z);
+        result = 31 * result + (int) (longBits ^ (longBits >>> 32));
+        return result;
     }
 
     static DecimalFormat df = new DecimalFormat("0.00");
@@ -84,13 +98,13 @@ public class Pair implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (!(o instanceof Pair)) {
-            throw new UnsupportedOperationException("!(o instanceof Pair)");
+    public int compareTo(Pair other) {
+        if (this.cachedError < other.cachedError) {
+            return -1;
+        } else if (this.cachedError > other.cachedError) {
+            return 1;
+        } else {
+            return 0;
         }
-
-        Pair other = (Pair)o;
-        return (this.cachedError > other.cachedError) ? 1 : -1;
-        
     }
 }
