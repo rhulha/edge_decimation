@@ -2,7 +2,7 @@ package edge_decimation;
 
 import java.text.DecimalFormat;
 
-public class Pair implements Comparable<Pair> {
+public class Edge implements Comparable<Edge> {
 
     Vector3 a;
     Vector3 b;
@@ -10,7 +10,7 @@ public class Pair implements Comparable<Pair> {
     public double cachedError = -1;
     public boolean removed = false;
 
-    Pair(Vector3 a, Vector3 b) {
+    Edge(Vector3 a, Vector3 b) {
         if (a.length() < b.length()) {
             this.a = b;
             this.b = a;
@@ -66,10 +66,10 @@ public class Pair implements Comparable<Pair> {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Pair)) {
+        if (!(obj instanceof Edge)) {
             return false;
         }
-        Pair other = (Pair) obj;
+        Edge other = (Edge) obj;
         return this.a.equals(other.a) && this.b.equals(other.b);
     }
 
@@ -98,7 +98,7 @@ public class Pair implements Comparable<Pair> {
     }
 
     @Override
-    public int compareTo(Pair other) {
+    public int compareTo(Edge other) {
         if (this.cachedError < other.cachedError) {
             return -1;
         } else if (this.cachedError > other.cachedError) {

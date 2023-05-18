@@ -10,8 +10,8 @@ public class Decimator {
     public static List<Triangle> simplify(List<Triangle> tris, float factor) {
         HashMap<Vector3, Vector3> vectorAndQuadric = new HashMap<Vector3, Vector3>();
         HashMap<Vector3, List<Triangle>> vertexFaces = new HashMap<Vector3, List<Triangle>>();
-        HashSet<Pair> pairs = new HashSet<Pair>();
-        HashMap<Vector3, List<Pair>> vertexPairs = new HashMap<Vector3, List<Pair>>();
+        HashSet<Edge> edges = new HashSet<Edge>();
+        HashMap<Vector3, List<Edge>> vertexPairs = new HashMap<Vector3, List<Edge>>();
 
         for (Triangle t : tris) {
             vectorAndQuadric.putIfAbsent(t.p1, new Vector3(t.p1, new Matrix4()));
@@ -32,24 +32,24 @@ public class Decimator {
             vertexFaces.computeIfAbsent(v2, k -> new ArrayList<>()).add(face);
             vertexFaces.computeIfAbsent(v3, k -> new ArrayList<>()).add(face);
 
-            pairs.add(new Pair(v1,v2));
-            pairs.add(new Pair(v2,v3));
-            pairs.add(new Pair(v1,v3));
+            edges.add(new Edge(v1,v2));
+            edges.add(new Edge(v2,v3));
+            edges.add(new Edge(v1,v3));
         }
 
 
-        for (Pair p : pairs)
+        for (Edge p : edges)
         {
             vertexPairs.computeIfAbsent(p.a, k -> new ArrayList<>()).add(p);
             vertexPairs.computeIfAbsent(p.b, k -> new ArrayList<>()).add(p);
         }
 
         System.out.println("vertexFaces.size(): " + vertexFaces.size());
-        System.out.println("pairs.size(): " + pairs.size());
+        System.out.println("edges.size(): " + edges.size());
         System.out.println("vertexPairs.size(): " + vertexPairs.size());
 
-        var priorityQueue = new MyPriorityQueue<Pair>(); 
-        for (Pair p : pairs)
+        var priorityQueue = new MyPriorityQueue<Edge>(); 
+        for (Edge p : edges)
         {
             p.error();
             priorityQueue.add(p); // Sort by cachedError: Smallest error first,  highest error last.
@@ -59,7 +59,7 @@ public class Decimator {
         int targetFaceCount = (int)(currentFaceCount * factor);
         int i=0;
         while(currentFaceCount > targetFaceCount && priorityQueue.size() > 0) {
-            Pair p = priorityQueue.remove();
+            Edge p = priorityQueue.remove();
 
             if (p.removed)
                 continue;
@@ -69,7 +69,7 @@ public class Decimator {
             //get distinct faces 
             var distinctFaces = getDistinctFaces(vertexFaces, p);
 
-            //get related pairs
+            //get related edges
             var distinctPairs = getDistinctPairs(vertexPairs, p);
 
             if( i++<0 ) {
@@ -169,7 +169,7 @@ public class Decimator {
                 }
                 seen.add(b);
 
-                var np = new Pair(a, b);
+                var np = new Edge(a, b);
                 np.error();
                 priorityQueue.add(np);
 
@@ -199,8 +199,8 @@ public class Decimator {
         //List<Triangle> newMesh = finalDistinctFaces.stream().map(x -> new Triangle(x.p1, x.p2, x.p3)).collect(Collectors.toList());
     }
 
-    private static HashSet<Pair> getDistinctPairs(HashMap<Vector3, List<Pair>> vertexPairs, Pair p) {
-        var distinctPairs = new HashSet<Pair>();
+    private static HashSet<Edge> getDistinctPairs(HashMap<Vector3, List<Edge>> vertexPairs, Edge p) {
+        var distinctPairs = new HashSet<Edge>();
         if (vertexPairs.containsKey(p.a)) {
             for (var pair : vertexPairs.get(p.a))
             {
@@ -222,7 +222,7 @@ public class Decimator {
         return distinctPairs;
     }
 
-    private static HashSet<Triangle> getDistinctFaces(HashMap<Vector3, List<Triangle>> vertexFaces, Pair p) {
+    private static HashSet<Triangle> getDistinctFaces(HashMap<Vector3, List<Triangle>> vertexFaces, Edge p) {
         var distinctFaces = new HashSet<Triangle>();
         if (vertexFaces.containsKey(p.a)) {
             for(var face : vertexFaces.get(p.a))    {
